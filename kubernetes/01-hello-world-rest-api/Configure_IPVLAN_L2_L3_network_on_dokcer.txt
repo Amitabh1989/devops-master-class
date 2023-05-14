@@ -1,0 +1,380 @@
+Here is how to configure a IPVLAN L2 Network for your Docker Containers
+
+=============================================
+Step 1: Configure --driver=ipvlan
+=============================================
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker network create --driver=ipvlan --subnet=255.255.255.0 --gateway=123.456.0.1 mynetwork
+	invalid subnet: invalid CIDR address: 255.255.255.0   <=== This will cause error. Its an invalid CIDR format. 
+
+	"""
+	CIDR stands for Classless Inter-Domain Routing. It is a method of allocating IP addresses and routing Internet Protocol (IP) packets. In CIDR notation, a network or subnet is represented by an IP address followed by a slash character and a number, which indicates the number of bits used for the network prefix. For example, the CIDR notation for the subnet mask 255.255.255.0 is /24, because it has 24 bits set to 1. This notation is commonly used in networking to specify IP address ranges, subnets, and routing information.
+	"""
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker network create --driver=ipvlan --subnet=123.456.0.109/24 --gateway=123.456.0.1 mynetwork
+	c7bdb2a70f426f741401a15d246443f180fba7a3e7a3fd1e61e5ec9d8c1f402a
+
+
+=============================================
+Step 2: Run your docker on various host ports and provide them same network as created above. Use --network=<custom_network_name>
+=============================================
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker run -d -p 8080:8080 --name=hello_world0 --network=mynetwork ainebula/hello-world-rest-api:0.0.1.RELEASE
+	89b8a284354a2d1a77c2df2baadd392ca5ffede87073f7bdb9e239379fe3a1f3
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker run -d -p 8081:8080 --name=hello_world1 --network=mynetwork ainebula/hello-world-rest-api:0.0.1.RELEASE
+	517a5a35ce6452ce249208d4ec14ed1f97cd6c7609d4f83abbe56e85ec7bade3
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker run -d -p 8082:8080 --name=hello_world2 --network=mynetwork ainebula/hello-world-rest-api:0.0.1.RELEASE
+	20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb
+
+
+=============================================
+Step 3: Check all your containers and then inpect the network
+=============================================
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker container ls
+	CONTAINER ID   IMAGE                                         COMMAND                  CREATED          STATUS          PORTS     NAMES
+	20eed81508bd   ainebula/hello-world-rest-api:0.0.1.RELEASE   "sh -c 'java -jar /a…"   9 seconds ago    Up 7 seconds              hello_world2
+	517a5a35ce64   ainebula/hello-world-rest-api:0.0.1.RELEASE   "sh -c 'java -jar /a…"   23 seconds ago   Up 21 seconds             hello_world1
+	89b8a284354a   ainebula/hello-world-rest-api:0.0.1.RELEASE   "sh -c 'java -jar /a…"   33 seconds ago   Up 31 seconds             hello_world0
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker inspect 20eed81508bd
+	[
+		{
+			"Id": "20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb",
+			"Created": "2023-05-13T03:54:34.697031561Z",
+			"Path": "sh",
+			"Args": [
+				"-c",
+				"java -jar /app.jar"
+			],
+			"State": {
+				"Status": "running",
+				"Running": true,
+				"Paused": false,
+				"Restarting": false,
+				"OOMKilled": false,
+				"Dead": false,
+				"Pid": 30955,
+				"ExitCode": 0,
+				"Error": "",
+				"StartedAt": "2023-05-13T03:54:35.355445487Z",
+				"FinishedAt": "0001-01-01T00:00:00Z"
+			},
+			"Image": "sha256:990680fb8bc62b74026a05f4272d2c7ac285d41c836441f373c228aeb4506867",
+			"ResolvConfPath": "/var/lib/docker/containers/20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb/resolv.conf",
+			"HostnamePath": "/var/lib/docker/containers/20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb/hostname",
+			"HostsPath": "/var/lib/docker/containers/20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb/hosts",
+			"LogPath": "/var/lib/docker/containers/20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb/20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb-json.log",
+			"Name": "/hello_world2",
+			"RestartCount": 0,
+			"Driver": "overlay2",
+			"Platform": "linux",
+			"MountLabel": "",
+			"ProcessLabel": "",
+			"AppArmorProfile": "",
+			"ExecIDs": null,
+			"HostConfig": {
+				"Binds": null,
+				"ContainerIDFile": "",
+				"LogConfig": {
+					"Type": "json-file",
+					"Config": {}
+				},
+				"NetworkMode": "mynetwork",
+				"PortBindings": {
+					"8080/tcp": [
+						{
+							"HostIp": "",
+							"HostPort": "8082"
+						}
+					]
+				},
+				"RestartPolicy": {
+					"Name": "no",
+					"MaximumRetryCount": 0
+				},
+				"AutoRemove": false,
+				"VolumeDriver": "",
+				"VolumesFrom": null,
+				"ConsoleSize": [
+					85,
+					272
+				],
+				"CapAdd": null,
+				"CapDrop": null,
+				"CgroupnsMode": "host",
+				"Dns": [],
+				"DnsOptions": [],
+				"DnsSearch": [],
+				"ExtraHosts": null,
+				"GroupAdd": null,
+				"IpcMode": "private",
+				"Cgroup": "",
+				"Links": null,
+				"OomScoreAdj": 0,
+				"PidMode": "",
+				"Privileged": false,
+				"PublishAllPorts": false,
+				"ReadonlyRootfs": false,
+				"SecurityOpt": null,
+				"UTSMode": "",
+				"UsernsMode": "",
+				"ShmSize": 67108864,
+				"Runtime": "runc",
+				"Isolation": "",
+				"CpuShares": 0,
+				"Memory": 0,
+				"NanoCpus": 0,
+				"CgroupParent": "",
+				"BlkioWeight": 0,
+				"BlkioWeightDevice": [],
+				"BlkioDeviceReadBps": [],
+				"BlkioDeviceWriteBps": [],
+				"BlkioDeviceReadIOps": [],
+				"BlkioDeviceWriteIOps": [],
+				"CpuPeriod": 0,
+				"CpuQuota": 0,
+				"CpuRealtimePeriod": 0,
+				"CpuRealtimeRuntime": 0,
+				"CpusetCpus": "",
+				"CpusetMems": "",
+				"Devices": [],
+				"DeviceCgroupRules": null,
+				"DeviceRequests": null,
+				"MemoryReservation": 0,
+				"MemorySwap": 0,
+				"MemorySwappiness": null,
+				"OomKillDisable": false,
+				"PidsLimit": null,
+				"Ulimits": null,
+				"CpuCount": 0,
+				"CpuPercent": 0,
+				"IOMaximumIOps": 0,
+				"IOMaximumBandwidth": 0,
+				"MaskedPaths": [
+					"/proc/asound",
+					"/proc/acpi",
+					"/proc/kcore",
+					"/proc/keys",
+					"/proc/latency_stats",
+					"/proc/timer_list",
+					"/proc/timer_stats",
+					"/proc/sched_debug",
+					"/proc/scsi",
+					"/sys/firmware"
+				],
+				"ReadonlyPaths": [
+					"/proc/bus",
+					"/proc/fs",
+					"/proc/irq",
+					"/proc/sys",
+					"/proc/sysrq-trigger"
+				]
+			},
+			"GraphDriver": {
+				"Data": {
+					"LowerDir": "/var/lib/docker/overlay2/8a8babb625a6cd77e2a76f76027aace784a2d48a80eb2ad4cc3edbbbcf56c85b-init/diff:/var/lib/docker/overlay2/kfce66y05euzcvhuyoiu2km8i/diff:/var/lib/docker/overlay2/7b11dd4600032640d4ab17f960867bb899376094aa81675d660b674807053ee4/diff:/var/lib/docker/overlay2/4e2e9b8a18024e9c988a88f3848459eb0bade8d3d54f147c95da5489c78e1074/diff:/var/lib/docker/overlay2/0af8c543368b3aa5d3ea3b3395bd884a27097e96bfaedd85ebd580689d7db291/diff",
+					"MergedDir": "/var/lib/docker/overlay2/8a8babb625a6cd77e2a76f76027aace784a2d48a80eb2ad4cc3edbbbcf56c85b/merged",
+					"UpperDir": "/var/lib/docker/overlay2/8a8babb625a6cd77e2a76f76027aace784a2d48a80eb2ad4cc3edbbbcf56c85b/diff",
+					"WorkDir": "/var/lib/docker/overlay2/8a8babb625a6cd77e2a76f76027aace784a2d48a80eb2ad4cc3edbbbcf56c85b/work"
+				},
+				"Name": "overlay2"
+			},
+			"Mounts": [
+				{
+					"Type": "volume",
+					"Name": "c359f061f1e280324b9914524702a11b190d5960b4bc0a7cb506eb27839a2c4b",
+					"Source": "/var/lib/docker/volumes/c359f061f1e280324b9914524702a11b190d5960b4bc0a7cb506eb27839a2c4b/_data",
+					"Destination": "/tmp",
+					"Driver": "local",
+					"Mode": "",
+					"RW": true,
+					"Propagation": ""
+				}
+			],
+			"Config": {
+				"Hostname": "20eed81508bd",
+				"Domainname": "",
+				"User": "",
+				"AttachStdin": false,
+				"AttachStdout": false,
+				"AttachStderr": false,
+				"ExposedPorts": {
+					"8080/tcp": {}
+				},
+				"Tty": false,
+				"OpenStdin": false,
+				"StdinOnce": false,
+				"Env": [
+					"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin",
+					"LANG=C.UTF-8",
+					"JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk",
+					"JAVA_VERSION=8u212",
+					"JAVA_ALPINE_VERSION=8.212.04-r0"
+				],
+				"Cmd": null,
+				"Image": "ainebula/hello-world-rest-api:0.0.1.RELEASE",
+				"Volumes": {
+					"/tmp": {}
+				},
+				"WorkingDir": "",
+				"Entrypoint": [
+					"sh",
+					"-c",
+					"java -jar /app.jar"
+				],
+				"OnBuild": null,
+				"Labels": {}
+			},
+			"NetworkSettings": {
+				"Bridge": "",
+				"SandboxID": "fc52290d1db1013d9373aba6ce5e118ffa477ef21852bc90a004525362abf8db",
+				"HairpinMode": false,
+				"LinkLocalIPv6Address": "",
+				"LinkLocalIPv6PrefixLen": 0,
+				"Ports": {},
+				"SandboxKey": "/var/run/docker/netns/fc52290d1db1",
+				"SecondaryIPAddresses": null,
+				"SecondaryIPv6Addresses": null,
+				"EndpointID": "",
+				"Gateway": "",
+				"GlobalIPv6Address": "",
+				"GlobalIPv6PrefixLen": 0,
+				"IPAddress": "",
+				"IPPrefixLen": 0,
+				"IPv6Gateway": "",
+				"MacAddress": "",
+				"Networks": {                           
+					"mynetwork": {                     <==== Check the network to be the custom network created by you
+						"IPAMConfig": null,
+						"Links": null,
+						"Aliases": [
+							"20eed81508bd"
+						],
+						"NetworkID": "c7bdb2a70f426f741401a15d246443f180fba7a3e7a3fd1e61e5ec9d8c1f402a",
+						"EndpointID": "d6f10536a2528b4c159a7ac0c3a31512ab3c57c8a3efc96cd5247714d096ef9b",
+						"Gateway": "123.456.0.1",
+						"IPAddress": "123.456.0.4",
+						"IPPrefixLen": 24,
+						"IPv6Gateway": "",
+						"GlobalIPv6Address": "",
+						"GlobalIPv6PrefixLen": 0,
+						"MacAddress": "",
+						"DriverOpts": null
+					}
+				}
+			}
+		}
+	]
+
+
+=============================================
+Step 4: Inspect your network and see all the containers sharing this network
+=============================================
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker network ls
+	NETWORK ID     NAME        DRIVER    SCOPE
+	5d986b73f9b1   bridge      bridge    local
+	736c07bb349d   host        host      local
+	c7bdb2a70f42   mynetwork   ipvlan    local
+	7705caee92cd   none        null      local
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker network inspect mynetwork
+	[
+		{
+			"Name": "mynetwork",
+			"Id": "c7bdb2a70f426f741401a15d246443f180fba7a3e7a3fd1e61e5ec9d8c1f402a",
+			"Created": "2023-05-13T03:51:40.790505359Z",
+			"Scope": "local",
+			"Driver": "ipvlan",
+			"EnableIPv6": false,
+			"IPAM": {
+				"Driver": "default",
+				"Options": {},
+				"Config": [
+					{
+						"Subnet": "123.456.0.109/24",
+						"Gateway": "123.456.0.1"
+					}
+				]
+			},
+			"Internal": false,
+			"Attachable": false,
+			"Ingress": false,
+			"ConfigFrom": {
+				"Network": ""
+			},
+			"ConfigOnly": false,
+			"Containers": {                                                                       <==== Containers sharing this network
+				"20eed81508bdf90efad553090bc154ee25a78b51f236db5f133b308e97abf9cb": {
+					"Name": "hello_world2",
+					"EndpointID": "d6f10536a2528b4c159a7ac0c3a31512ab3c57c8a3efc96cd5247714d096ef9b",
+					"MacAddress": "",
+					"IPv4Address": "123.456.0.4/24",
+					"IPv6Address": ""
+				},
+				"517a5a35ce6452ce249208d4ec14ed1f97cd6c7609d4f83abbe56e85ec7bade3": {
+					"Name": "hello_world1",
+					"EndpointID": "a5a8ab52b0f3502e9c83ecad6280bf572a95f2bbec3fe113c123a50d51cb07d7",
+					"MacAddress": "",
+					"IPv4Address": "123.456.0.3/24",
+					"IPv6Address": ""
+				},
+				"89b8a284354a2d1a77c2df2baadd392ca5ffede87073f7bdb9e239379fe3a1f3": {
+					"Name": "hello_world0",
+					"EndpointID": "7e9fef23f0306a39c03379dad51788fe04f6054b9d9b0d3f6e3c6412d4e8515e",
+					"MacAddress": "",
+					"IPv4Address": "123.456.0.2/24",
+					"IPv6Address": ""
+				}
+			},
+			"Options": {},
+			"Labels": {}
+		}
+	]
+
+=============================================
+Step 5: Get inside any container and ping other containers. They can talk to each other all day !!!
+=============================================
+
+	PS C:\GitHub\devops-master-class\kubernetes\01-hello-world-rest-api> docker exec -it 20ee sh
+	/ # ping hello-world2
+	ping: bad address 'hello-world2'
+	/ # ping hello_world1
+	PING hello_world1 (123.456.0.3): 56 data bytes
+	64 bytes from 123.456.0.3: seq=0 ttl=64 time=0.293 ms
+	64 bytes from 123.456.0.3: seq=1 ttl=64 time=0.045 ms
+	64 bytes from 123.456.0.3: seq=2 ttl=64 time=0.049 ms
+	64 bytes from 123.456.0.3: seq=3 ttl=64 time=0.041 ms
+	64 bytes from 123.456.0.3: seq=4 ttl=64 time=0.040 ms
+	64 bytes from 123.456.0.3: seq=5 ttl=64 time=0.051 ms
+	^C
+	--- hello_world1 ping statistics ---
+	6 packets transmitted, 6 packets received, 0% packet loss
+	round-trip min/avg/max = 0.040/0.086/0.293 ms
+	/ # ping hello_world0
+	PING hello_world0 (123.456.0.2): 56 data bytes
+	64 bytes from 123.456.0.2: seq=0 ttl=64 time=0.381 ms
+	64 bytes from 123.456.0.2: seq=1 ttl=64 time=0.135 ms
+	64 bytes from 123.456.0.2: seq=2 ttl=64 time=0.050 ms
+	64 bytes from 123.456.0.2: seq=3 ttl=64 time=0.106 ms
+	64 bytes from 123.456.0.2: seq=4 ttl=64 time=0.093 ms
+	64 bytes from 123.456.0.2: seq=5 ttl=64 time=0.129 ms
+	64 bytes from 123.456.0.2: seq=6 ttl=64 time=0.045 ms
+	^C
+	--- hello_world0 ping statistics ---
+	7 packets transmitted, 7 packets received, 0% packet loss
+	round-trip min/avg/max = 0.045/0.134/0.381 ms
+	/ #
+
+
+=============================================
+Are you not a genius now?!
+NOTE : They can not yet talk to yout host and vice versa.
+It needs more configuration for your host and contianers to talk to each other and ping the world!
+This tutorial is limited to configuration of the IPVLAN L2 Network only.
+
+
+PROTIP : When you dont give the Gateway IP, it becomes a L3 Network and now, containers treat your HOST as router!
+=============================================
+
+

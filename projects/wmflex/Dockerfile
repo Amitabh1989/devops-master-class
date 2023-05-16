@@ -14,6 +14,7 @@ RUN apt-get install tk -y
 # Copying the main app after port has been expose. This is done to make sure that the top layer
 # get to use cache wheever possible. Most of the code changes would happen in the
 # app code only, hence adding it here.
+WORKDIR /app
 COPY . /app
 CMD python ./wingman.py
 

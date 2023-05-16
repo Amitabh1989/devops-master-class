@@ -1,0 +1,93 @@
+PS C:\GitHub\devops-master-class\projects\wmflex> ls
+
+
+    Directory: C:\GitHub\devops-master-class\projects\wmflex
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        10-05-2023  10:32 PM                app
+d-----        10-05-2023  05:36 PM                icons
+d-----        10-05-2023  05:36 PM                wm_modules
+-a----        05-05-2023  09:56 AM          72991 configFileGui.py
+-a----        27-03-2023  03:23 PM          17454 custom_styles.py
+-a----        16-05-2023  08:03 AM            616 Dockerfile
+-a----        10-05-2023  05:31 PM         186378 mjolnirFlex.py
+-a----        10-05-2023  06:09 PM             14 requirements.txt
+-a----        14-04-2023  10:00 AM           6666 tooltip.py
+-a----        19-04-2023  10:44 AM          18789 utils.py
+-a----        10-05-2023  10:20 PM          76177 wingman.py
+-a----        10-05-2023  06:00 PM            217 _dockerfile_copy
+-a----        16-05-2023  08:07 AM            860 _dockerfile_copy_2
+-a----        07-03-2023  11:48 AM              0 __init__.py
+
+
+PS C:\GitHub\devops-master-class\projects\wmflex> docker build -f .\_dockerfile_copy_2 -t ainebula/wmflex:0.0.1.RELEASE .
+[+] Building 2.5s (14/15)
+ => [internal] load build definition from _dockerfile_copy_2                                                                                                                                                                                                               0.0s
+ => => transferring dockerfile: 909B                                                                                                                                                                                                                                       0.0s
+ => [internal] load .dockerignore                                                                                                                                                                                                                                          0.0s
+ => => transferring context: 2B                                                                                                                                                                                                                                            0.0s
+ => [internal] load metadata for docker.io/library/python:2.7.15-alpine                                                                                                                                                                                                    0.9s
+ => [internal] load build context                                                                                                                                                                                                                                          0.0s
+ => => transferring context: 2.58kB                                                                                                                                                                                                                                        0.0s
+ => [ 1/11] FROM docker.io/library/python:2.7.15-alpine@sha256:3f79062609791c6e5be65c703fd6dfbb8c4e76e371e791310957f807870fe56b                                                                                                                                            0.0s
+ => CACHED [ 2/11] RUN apk add --no-cache zlib-dev                                                                                                                                                                                                                         0.0s
+ => CACHED [ 3/11] RUN apk add --no-cache linux-headers                                                                                                                                                                                                                    0.0s
+ => CACHED [ 4/11] RUN apk add --no-cache gcc python2-dev                                                                                                                                                                                                                  0.0s
+ => CACHED [ 5/11] RUN apk add --no-cache --virtual .build-deps build-base     && apk add --no-cache jpeg-dev                                                                                                                                                              0.0s
+ => CACHED [ 6/11] RUN apk add --no-cache gcc musl-dev                                                                                                                                                                                                                     0.0s
+ => CACHED [ 7/11] RUN apk update && apk add --no-cache tcl tk                                                                                                                                                                                                             0.0s
+ => CACHED [ 8/11] RUN apk add --update --no-cache --virtual .build-deps gcc musl-dev                                                                                                                                                                                      0.0s
+ => CACHED [ 9/11] RUN apk del .build-deps                                                                                                                                                                                                                                 0.0s
+ => ERROR [10/11] RUN pip install -r ./requirements.txt                                                                                                                                                                                                                    1.6s
+------
+ > [10/11] RUN pip install -r ./requirements.txt:
+#0 1.280 DEPRECATION: Python 2.7 will reach the end of its life on January 1st, 2020. Please upgrade your Python as Python 2.7 won't be maintained after that date. A future version of pip will drop support for Python 2.7.
+#0 1.324 Could not open requirements file: [Errno 2] No such file or directory: './requirements.txt'
+#0 1.555 You are using pip version 19.0.3, however version 20.3.4 is available.
+#0 1.555 You should consider upgrading via the 'pip install --upgrade pip' command.
+------
+_dockerfile_copy_2:14
+--------------------
+  12 |     # ENV DISPLAY=:0.0
+  13 |     # WORKDIR /app
+  14 | >>> RUN pip install -r ./requirements.txt
+  15 |     EXPOSE 5000
+  16 |
+--------------------
+ERROR: failed to solve: process "/bin/sh -c pip install -r ./requirements.txt" did not complete successfully: exit code: 1
+PS C:\GitHub\devops-master-class\projects\wmflex> docker build -f .\_dockerfile_copy_2 -t ainebula/wmflex:0.0.1.RELEASE .
+[+] Building 20.6s (18/18) FINISHED
+ => [internal] load build definition from _dockerfile_copy_2                                                                                                                                                                                                               0.0s
+ => => transferring dockerfile: 959B                                                                                                                                                                                                                                       0.0s
+ => [internal] load .dockerignore                                                                                                                                                                                                                                          0.0s
+ => => transferring context: 2B                                                                                                                                                                                                                                            0.0s
+ => [internal] load metadata for docker.io/library/python:2.7.15-alpine                                                                                                                                                                                                    1.9s
+ => [auth] library/python:pull token for registry-1.docker.io                                                                                                                                                                                                              0.0s
+ => [internal] load build context                                                                                                                                                                                                                                          0.0s
+ => => transferring context: 2.63kB                                                                                                                                                                                                                                        0.0s
+ => [ 1/12] FROM docker.io/library/python:2.7.15-alpine@sha256:3f79062609791c6e5be65c703fd6dfbb8c4e76e371e791310957f807870fe56b                                                                                                                                            0.0s
+ => CACHED [ 2/12] RUN apk add --no-cache zlib-dev                                                                                                                                                                                                                         0.0s
+ => CACHED [ 3/12] RUN apk add --no-cache linux-headers                                                                                                                                                                                                                    0.0s
+ => CACHED [ 4/12] RUN apk add --no-cache gcc python2-dev                                                                                                                                                                                                                  0.0s
+ => CACHED [ 5/12] RUN apk add --no-cache --virtual .build-deps build-base     && apk add --no-cache jpeg-dev                                                                                                                                                              0.0s
+ => CACHED [ 6/12] RUN apk add --no-cache gcc musl-dev                                                                                                                                                                                                                     0.0s
+ => CACHED [ 7/12] RUN apk update && apk add --no-cache tcl tk                                                                                                                                                                                                             0.0s
+ => CACHED [ 8/12] RUN apk add --update --no-cache --virtual .build-deps gcc musl-dev                                                                                                                                                                                      0.0s
+ => CACHED [ 9/12] RUN apk del .build-deps                                                                                                                                                                                                                                 0.0s
+ => CACHED [10/12] WORKDIR /app                                                                                                                                                                                                                                            0.0s
+ => [11/12] COPY . /app                                                                                                                                                                                                                                                    0.0s
+ => [12/12] RUN pip install -r requirements.txt                                                                                                                                                                                                                           17.7s
+ => exporting to image                                                                                                                                                                                                                                                     0.9s
+ => => exporting layers                                                                                                                                                                                                                                                    0.9s
+ => => writing image sha256:74f8431a46d19e7231d99ce1ab2f36af6e98cd4ed3ee22bf9b7aefbd77fe225b                                                                                                                                                                               0.0s
+ => => naming to docker.io/ainebula/wmflex:0.0.1.RELEASE                                                                                                                                                                                                                   0.0s
+PS C:\GitHub\devops-master-class\projects\wmflex> docker run -p 5000:5000 --name=wmflex ainebula/wmflex:0.0.1.RELEASE
+Traceback (most recent call last):
+  File "./wingman.py", line 143, in <module>
+    root_window = tk.Tk()
+  File "/usr/local/lib/python2.7/lib-tk/Tkinter.py", line 1819, in __init__
+    self.tk = _tkinter.create(screenName, baseName, className, interactive, wantobjects, useTk, sync, use)
+_tkinter.TclError: couldn't connect to display ":0.0"
+PS C:\GitHub\devops-master-class\projects\wmflex>

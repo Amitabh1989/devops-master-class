@@ -11,13 +11,15 @@ RUN apk del .build-deps
 ENV DISPLAY=:0.0
 # ENV DISPLAY=:0.0
 WORKDIR /app
-RUN pip install -r requirements.txt
-EXPOSE 5000
+# RUN pip install -r requirements.txt
+# EXPOSE 5000
 
 # Copying the main app after port has been expose. This is done to make sure that the top layer
 # get to use cache wheever possible. Most of the code changes would happen in the
 # app code only, hence adding it here.
 COPY . /app
+RUN pip install -r requirements.txt
+EXPOSE 5000
 CMD python ./wingman.py
 
 #COPY requirements.txt /app/requirements.txt
